@@ -78,6 +78,17 @@ In the XAML file, you can add a button to trigger the `OpenDatabaseBrowser` meth
 <Button Text="Open Database Browser" Clicked="OpenDatabaseBrowser" />
 ```
 
+## Screenshots
+
+Table list:
+![TableList](Docs/TableView.png)
+
+Table details:
+![TableDetails](Docs/TableDetails.png)
+
+Edit/add row:
+![EditRow](Docs/EditRow.png)
+
 ## Requirements
 
 - .NET MAUI project
