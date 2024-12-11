@@ -1,17 +1,15 @@
-﻿using System.Data.SQLite;
-
-namespace SQLiteBrowser;
+﻿namespace SQLiteBrowser;
 
 public partial class EditRowPage : ContentPage
 {
-    private readonly string connectionString;
+    private readonly string dbPath;
     private readonly string tableName;
     private Dictionary<string, object> row;
     private bool isNew;
 
-    public EditRowPage(string _connectionString, string _tableName, Dictionary<string, object> _row, bool _isNew = false)
+    public EditRowPage(string _dbPath, string _tableName, Dictionary<string, object> _row, bool _isNew = false)
     {
-        this.connectionString = _connectionString;
+        this.dbPath = _dbPath;
         this.tableName = _tableName;
         this.row = _row;
         this.isNew = _isNew;
@@ -52,28 +50,8 @@ public partial class EditRowPage : ContentPage
                     newRow[entry.Placeholder] = string.IsNullOrEmpty(entry.Text) ? null : entry.Text;
                 }
             }
-            // Save the row to the database
-            using var connection = new SQLiteConnection(this.connectionString);
-            connection.Open();
 
-            string query = $"INSERT INTO {this.tableName}  ";
-            string columns = "(";
-            string values = "VALUES (";
-            foreach (var column in newRow)
-            {
-                columns += $"{column.Key}, ";
-                values += column.Value is null ? "null, " : $"'{column.Value}', ";
-            }
-            columns = columns.Substring(0, columns.Length - 2); // Remove the last comma
-            values = values.Substring(0, values.Length - 2); // Remove the last comma
-            columns += ")";
-            values += ")";
-            query += columns + " " + values;
-
-            using var command = new SQLiteCommand(query, connection);
-            command.ExecuteNonQuery();
-
-            connection.Close();
+            SQLiteWrapper.Insert(this.tableName, this.dbPath, newRow);
 
             await Navigation.PopAsync();
         }
@@ -95,31 +73,7 @@ public partial class EditRowPage : ContentPage
                     newRow[entry.Placeholder] = string.IsNullOrEmpty(entry.Text) ? null : entry.Text;
                 }
             }
-            // Save the row to the database
-            using var connection = new SQLiteConnection(this.connectionString);
-            connection.Open();
-
-            string query = $"UPDATE {this.tableName} SET ";
-            foreach (var column in newRow)
-            {
-                query += $"{column.Key} = ";
-                query += column.Value is null ? "null, " : $"'{column.Value}', ";
-            }
-            query = query.Substring(0, query.Length - 2); // Remove the last comma
-                                                          // Use all the keys to find the row to update
-            query += " WHERE ";
-            foreach (var column in this.row)
-            {
-                query += $"{column.Key} = ";
-                query += column.Value is null ? "null" : $"'{column.Value}'";
-                query += " AND ";
-            }
-            query = query.Substring(0, query.Length - 5); // Remove the last AND
-
-            using var command = new SQLiteCommand(query, connection);
-            command.ExecuteNonQuery();
-
-            connection.Close();
+            SQLiteWrapper.Update(this.dbPath, this.tableName, newRow, this.row);
 
             await Navigation.PopAsync();
         }
@@ -134,20 +88,7 @@ public partial class EditRowPage : ContentPage
         if (!await DisplayAlert("Cancel", "Are you sure you want to delete?", "Yes", "No")) return;
         try
         {
-            using var connection = new SQLiteConnection(this.connectionString);
-            connection.Open();
-
-            string query = $"DELETE FROM {this.tableName} WHERE ";
-            foreach (var column in this.row)
-            {
-                query += $"{column.Key} = '{column.Value}' AND ";
-            }
-            query = query.Substring(0, query.Length - 5); // Remove the last AND
-
-            using var command = new SQLiteCommand(query, connection);
-            command.ExecuteNonQuery();
-
-            connection.Close();
+            SQLiteWrapper.Delete(this.dbPath, this.tableName, this.row);
 
             await Navigation.PopAsync();
         }

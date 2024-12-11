@@ -1,20 +1,18 @@
-﻿using System.Data.SQLite;
-using System.Collections.ObjectModel;
-using SQLiteBrowser;
+﻿using System.Collections.ObjectModel;
 
 namespace SQLiteBrowser;
 
 public partial class TableDetailPage : ContentPage
 {
-    private readonly string connectionString;
+    private readonly string dbPath;
     private readonly string tableName;
     private ObservableCollection<Dictionary<string, object>> rows;
     private List<string> columnNames;
     private Grid collectionView;
 
-    public TableDetailPage(string _connectionString, string _tableName)
+    public TableDetailPage(string _dbPath, string _tableName)
     {
-        this.connectionString = _connectionString;
+        this.dbPath = _dbPath;
         this.tableName = _tableName;
 
         Title = this.tableName;
@@ -84,57 +82,37 @@ public partial class TableDetailPage : ContentPage
             }
         }
     }
-
-    private void RefreshData()
-    {
-        collectionView.Children.Clear();
-        LoadTableData();
-        collectionView.Children.Clear();
-    }
-
+    
     private async void OnRowTapped(object? sender, TappedEventArgs e)
     {
         if (e.Parameter is Dictionary<string, object> row)
         {
-            await Navigation.PushAsync(new EditRowPage(this.connectionString, this.tableName, row));
+            await Navigation.PushAsync(new EditRowPage(this.dbPath, this.tableName, row));
         }
     }
 
     private async void OnAddNewRowClicked(object obj)
     {
         var emptyRow = this.columnNames.ToDictionary(col => col, col => (object)null);
-        await Navigation.PushAsync(new EditRowPage(this.connectionString, this.tableName, emptyRow, true));
+        await Navigation.PushAsync(new EditRowPage(this.dbPath, this.tableName, emptyRow, true));
     }
 
     private void LoadTableData()
     {
         this.rows = new ObservableCollection<Dictionary<string, object>>();
+        
+        List<Dictionary<string, object>> result = SQLiteWrapper.SelectAll(this.dbPath, this.tableName);
 
-        using var connection = new SQLiteConnection(this.connectionString);
-        connection.Open();
-        string query = $"SELECT * FROM {this.tableName}";
+        this.rows = new ObservableCollection<Dictionary<string, object>>(result);
 
-        using var command = new SQLiteCommand(query, connection);
-        using var reader = command.ExecuteReader();
-        // Get raw results
-        while (reader.Read())
+        if (this.rows.Count > 0)
         {
-            Dictionary<string, object> rowData = new Dictionary<string, object>();
-            for (int i = 0; i < reader.FieldCount; i++)
-            {
-                Console.WriteLine($"{reader.GetName(i)}: {reader.GetValue(i)}");
-                rowData[reader.GetName(i)] = reader.GetValue(i);
-            }
-            this.rows.Add(rowData);
+            this.columnNames = this.rows[0].Keys.ToList();
         }
-
-        // Get column names
-        this.columnNames = new List<string>();
-        for (int i = 0; i < reader.FieldCount; i++)
+        else
         {
-            this.columnNames.Add(reader.GetName(i));
+            this.columnNames = new List<string>();
         }
-
-        connection.Close();
     }
 }
+

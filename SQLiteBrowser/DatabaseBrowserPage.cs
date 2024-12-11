@@ -1,18 +1,17 @@
-﻿using System.Data.SQLite;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
 namespace SQLiteBrowser;
 
 public partial class DatabaseBrowserPage : ContentPage
 {
-    private string connectionString;
+    private string dbPath;
     private ObservableCollection<string> tableNames;
     private Grid tableGrid;
 
     public DatabaseBrowserPage(string _filePath)
     {
         this.tableNames = new ObservableCollection<string>();
-        this.connectionString = $"Data Source={_filePath}";
+        this.dbPath = _filePath;
 
         this.tableGrid = new Grid();
 
@@ -57,19 +56,7 @@ public partial class DatabaseBrowserPage : ContentPage
     {
         this.tableNames.Clear();
 
-        using var connection = new SQLiteConnection(this.connectionString);
-        connection.Open();
-
-        string query = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%';";
-
-        using var command = new SQLiteCommand(query, connection);
-        using var reader = command.ExecuteReader();
-
-        while (reader.Read())
-        {
-            string tableName = reader.GetString(0);
-            this.tableNames.Add(tableName);
-        }
+        this.tableNames = new ObservableCollection<string>(SQLiteWrapper.GetTableNames(this.dbPath));
 
         SetTables();
     }
@@ -78,7 +65,7 @@ public partial class DatabaseBrowserPage : ContentPage
     {
         if (_e.Parameter is string tableName)
         {
-            var tablePage = new TableDetailPage(this.connectionString, tableName);
+            var tablePage = new TableDetailPage(this.dbPath, tableName);
             await Navigation.PushAsync(tablePage);
         }
     }
