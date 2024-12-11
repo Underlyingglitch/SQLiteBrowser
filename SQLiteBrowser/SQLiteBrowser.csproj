@@ -24,6 +24,7 @@
 		<Version>1.2.0</Version>
 		<Description>Browse and edit SQLite databases with a MAUI ContentPage.</Description>
 		<PackageTags>SQLite, MAUI, Database</PackageTags>
+		<RepositoryUrl>https://github.com/Underlyingglitch/SQLiteBrowser</RepositoryUrl>
 	</PropertyGroup>
 
 	<ItemGroup>
