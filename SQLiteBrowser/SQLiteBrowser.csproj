@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
@@ -21,13 +21,17 @@
 		<Authors>Underlyingglitch</Authors>
 		<Company>underlyingglitch</Company>
 		<PackageId>SQLiteBrowser</PackageId>
-		<Version>1.2.0</Version>
+		<Version>1.2.1</Version>
 		<Description>Browse and edit SQLite databases with a MAUI ContentPage.</Description>
 		<PackageTags>SQLite, MAUI, Database</PackageTags>
 		<RepositoryUrl>https://github.com/Underlyingglitch/SQLiteBrowser</RepositoryUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Include="../README.md" Pack="true" PackagePath="\"/>
+		<None Include="../LICENSE" Pack="true" PackagePath="\"/>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
 		<PackageReference Include="System.Data.SQLite" Version="1.0.119" />
