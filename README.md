@@ -81,12 +81,15 @@ In the XAML file, you can add a button to trigger the `OpenDatabaseBrowser` meth
 ## Screenshots
 
 Table list:
+
 ![TableList](Docs/TableView.png)
 
 Table details:
+
 ![TableDetails](Docs/TableDetails.png)
 
 Edit/add row:
+
 ![EditRow](Docs/EditRow.png)
 
 ## Requirements
