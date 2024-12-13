@@ -6,16 +6,23 @@ public partial class DatabaseBrowserPage : ContentPage
 {
     private string dbPath;
     private ObservableCollection<string> tableNames;
-    private Grid tableGrid;
+    private ListView tablesView;
 
     public DatabaseBrowserPage(string _filePath)
     {
         this.tableNames = new ObservableCollection<string>();
         this.dbPath = _filePath;
-
-        this.tableGrid = new Grid();
-
-        this.LoadDatabase();
+        
+        this.tablesView = new ListView {
+            ItemsSource = this.tableNames,
+            ItemTemplate = new DataTemplate(() =>
+            {
+                var textCell = new TextCell();
+                textCell.SetBinding(TextCell.TextProperty, ".");
+                return textCell;
+            })
+        };
+        this.tablesView.ItemTapped += OnTableSelected;
 
         Title = "Tables";
 
@@ -24,7 +31,7 @@ public partial class DatabaseBrowserPage : ContentPage
             Padding = new Thickness(10),
             Children =
             {
-                this.tableGrid,
+                this.tablesView,
             }
         };
     }
@@ -35,38 +42,24 @@ public partial class DatabaseBrowserPage : ContentPage
         this.LoadDatabase();
     }
 
-    private void SetTables()
-    {
-        this.tableGrid.Children.Clear();
-
-        foreach (var tableName in this.tableNames)
-        {
-            this.tableGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            var label = new Label { Text = tableName, FontAttributes = FontAttributes.Bold };
-            this.tableGrid.Children.Add(label);
-
-            var tapGestureRecognizer = new TapGestureRecognizer();
-            tapGestureRecognizer.CommandParameter = tableName;
-            tapGestureRecognizer.Tapped += OnTableSelected;
-            label.GestureRecognizers.Add(tapGestureRecognizer);
-        }
-    }
-
     public void LoadDatabase()
     {
         this.tableNames.Clear();
 
-        this.tableNames = new ObservableCollection<string>(SQLiteWrapper.GetTableNames(this.dbPath));
-
-        SetTables();
+        var tableNamesFromDb = SQLiteWrapper.GetTableNames(this.dbPath);
+        foreach (var tableName in tableNamesFromDb)
+        {
+            this.tableNames.Add(tableName);
+        }
     }
 
-    private async void OnTableSelected(object? _sender, TappedEventArgs _e)
+    private async void OnTableSelected(object sender, ItemTappedEventArgs e)
     {
-        if (_e.Parameter is string tableName)
+        if (e.Item is string tableName)
         {
             var tablePage = new TableDetailPage(this.dbPath, tableName);
             await Navigation.PushAsync(tablePage);
         }
     }
+
 }

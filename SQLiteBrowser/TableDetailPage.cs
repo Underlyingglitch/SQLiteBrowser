@@ -26,7 +26,11 @@ public partial class TableDetailPage : ContentPage
             Padding = new Thickness(10),
             Children =
             {
-                collectionView,
+                new ScrollView
+                {
+                    Orientation = ScrollOrientation.Both, // Enable both horizontal and vertical scrolling
+                    Content = collectionView
+                },
                 new Button
                 {
                     Text = "Add New Row",
@@ -45,16 +49,25 @@ public partial class TableDetailPage : ContentPage
     private void SetData()
     {
         collectionView.Children.Clear();
+        collectionView.RowDefinitions.Clear();
+        collectionView.ColumnDefinitions.Clear();
         LoadTableData();
 
         collectionView.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         foreach (var columnName in this.columnNames)
         {
             collectionView.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-            var label = new Label { Text = columnName, FontAttributes = FontAttributes.Bold };
-            collectionView.SetColumn(label, this.columnNames.IndexOf(columnName));
-            collectionView.SetRow(label, 0);
-            collectionView.Children.Add(label);
+            var label = new Label { Text = columnName, FontAttributes = FontAttributes.Bold, Padding = new Thickness(5) };
+            var frame = new Frame
+            {
+                Content = label,
+                BorderColor = Colors.Black,
+                Padding = new Thickness(2),
+                CornerRadius = 0
+            };
+            collectionView.SetColumn(frame, this.columnNames.IndexOf(columnName));
+            collectionView.SetRow(frame, 0);
+            collectionView.Children.Add(frame);
         }
         for (int i = 0; i < this.rows.Count; i++)
         {
@@ -68,12 +81,18 @@ public partial class TableDetailPage : ContentPage
 
                 string columnName = this.columnNames[j];
                 string value = this.rows[i][columnName].ToString();
-                var label = new Label();
-                label.Text = value;
+                var label = new Label { Text = value, Padding = new Thickness(5) };
+                var frame = new Frame
+                {
+                    Content = label,
+                    BorderColor = Colors.Black,
+                    Padding = new Thickness(2),
+                    CornerRadius = 0
+                };
 
-                Grid.SetColumn(label, j);
-                Grid.SetRow(label, i + 1);
-                collectionView.Children.Add(label);
+                Grid.SetColumn(frame, j);
+                Grid.SetRow(frame, i + 1);
+                collectionView.Children.Add(frame);
 
                 var tapGestureRecognizer = new TapGestureRecognizer();
                 tapGestureRecognizer.CommandParameter = this.rows[i];
@@ -82,7 +101,14 @@ public partial class TableDetailPage : ContentPage
             }
         }
     }
-    
+
+    //private void RefreshData()
+    //{
+    //    collectionView.Children.Clear();
+    //    LoadTableData();
+    //    collectionView.Children.Clear();
+    //}
+
     private async void OnRowTapped(object? sender, TappedEventArgs e)
     {
         if (e.Parameter is Dictionary<string, object> row)

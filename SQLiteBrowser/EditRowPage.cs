@@ -25,9 +25,9 @@ public partial class EditRowPage : ContentPage
             if (!_isNew) entry.Text = column.Value.ToString();
             collectionView.Children.Add(entry);
         }
-        collectionView.Children.Add(new Button { Text = "Save", Command = new Command(OnSaveClicked), Padding = 10 });
-        if (!_isNew) collectionView.Children.Add(new Button { Text = "Delete", Command = new Command(OnDeleteClicked), BackgroundColor = Color.FromRgb(255, 0, 0), Padding = 10 });
-        collectionView.Children.Add(new Button { Text = "Cancel", Command = new Command(OnCancelClicked), BackgroundColor = Color.FromRgb(150, 150, 150), Padding = 10 });
+        collectionView.Children.Add(new Button { Text = "Save", Command = new Command(OnSaveClicked), Margin = new Thickness(0, 10, 0, 0) });
+        if (!_isNew) collectionView.Children.Add(new Button { Text = "Delete", Command = new Command(OnDeleteClicked), Margin = new Thickness(0, 10, 0, 0), BackgroundColor = Color.FromRgb(255, 0, 0) });
+        collectionView.Children.Add(new Button { Text = "Cancel", Command = new Command(OnCancelClicked), Margin = new Thickness(0, 10, 0, 0), BackgroundColor = Color.FromRgb(150, 150, 150) });
 
         Content = collectionView;
     }
