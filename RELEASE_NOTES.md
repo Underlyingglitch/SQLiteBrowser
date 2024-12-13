@@ -1,5 +1,9 @@
 # Release Notes
 
+## Version 2.2.0
+
+- Added prepared statements for safer queries
+
 ## Version 2.1.1
 
 - Fixed styling not being applied

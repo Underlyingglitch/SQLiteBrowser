@@ -96,12 +96,24 @@ internal class SQLiteWrapper
         {
             throw new Exception("Could not open database");
         }
+
         string sql = GetInsertQuery(_tableName, _values);
-        result = raw.sqlite3_exec(db, sql);
+        sqlite3_stmt stmt;
+        result = raw.sqlite3_prepare_v2(db, sql, out stmt);
         if (result != raw.SQLITE_OK)
+        {
+            throw new Exception($"Failed to prepare SQL statement: {raw.sqlite3_errmsg(db).utf8_to_string()}");
+        }
+
+        BindParameters(stmt, _values);
+
+        result = raw.sqlite3_step(stmt);
+        if (result != raw.SQLITE_DONE)
         {
             throw new Exception($"Failed to execute SQL statement: {raw.sqlite3_errmsg(db).utf8_to_string()}");
         }
+
+        raw.sqlite3_finalize(stmt);
         raw.sqlite3_close(db);
     }
 
@@ -113,13 +125,25 @@ internal class SQLiteWrapper
         {
             throw new Exception("Could not open database");
         }
-        string sql = GetUpdateQuery(_tableName, _oldValues, _values);
 
-        result = raw.sqlite3_exec(db, sql);
+        string sql = GetUpdateQuery(_tableName, _oldValues, _values);
+        sqlite3_stmt stmt;
+        result = raw.sqlite3_prepare_v2(db, sql, out stmt);
         if (result != raw.SQLITE_OK)
+        {
+            throw new Exception($"Failed to prepare SQL statement: {raw.sqlite3_errmsg(db).utf8_to_string()}");
+        }
+
+        BindParameters(stmt, _values);
+        BindParameters(stmt, _oldValues, _values.Count);
+
+        result = raw.sqlite3_step(stmt);
+        if (result != raw.SQLITE_DONE)
         {
             throw new Exception($"Failed to execute SQL statement: {raw.sqlite3_errmsg(db).utf8_to_string()}");
         }
+
+        raw.sqlite3_finalize(stmt);
         raw.sqlite3_close(db);
     }
 
@@ -131,30 +155,68 @@ internal class SQLiteWrapper
         {
             throw new Exception("Could not open database");
         }
+
         string sql = GetDeleteQuery(_tableName, _values);
-        result = raw.sqlite3_exec(db, sql);
+        sqlite3_stmt stmt;
+        result = raw.sqlite3_prepare_v2(db, sql, out stmt);
         if (result != raw.SQLITE_OK)
+        {
+            throw new Exception($"Failed to prepare SQL statement: {raw.sqlite3_errmsg(db).utf8_to_string()}");
+        }
+
+        BindParameters(stmt, _values);
+
+        result = raw.sqlite3_step(stmt);
+        if (result != raw.SQLITE_DONE)
         {
             throw new Exception($"Failed to execute SQL statement: {raw.sqlite3_errmsg(db).utf8_to_string()}");
         }
+
+        raw.sqlite3_finalize(stmt);
         raw.sqlite3_close(db);
+    }
+
+    private static void BindParameters(sqlite3_stmt stmt, Dictionary<string, object> parameters, int startIndex = 0)
+    {
+        int index = startIndex + 1;
+        foreach (var param in parameters)
+        {
+            if (param.Value == null)
+            {
+                raw.sqlite3_bind_null(stmt, index);
+            }
+            else if (param.Value is int)
+            {
+                raw.sqlite3_bind_int(stmt, index, (int)param.Value);
+            }
+            else if (param.Value is string)
+            {
+                raw.sqlite3_bind_text(stmt, index, (string)param.Value);
+            }
+            else if (param.Value is double)
+            {
+                raw.sqlite3_bind_double(stmt, index, (double)param.Value);
+            }
+            else if (param.Value is byte[])
+            {
+                raw.sqlite3_bind_blob(stmt, index, (byte[])param.Value);
+            }
+            index++;
+        }
     }
 
     public static string GetInsertQuery(string _tableName, Dictionary<string, object> _row)
     {
-        string query = $"INSERT INTO {_tableName}  ";
-        string columns = "(";
+        string query = $"INSERT INTO {_tableName} (";
         string values = "VALUES (";
         foreach (var column in _row)
         {
-            columns += $"{column.Key}, ";
-            values += column.Value is null ? "null, " : $"'{column.Value}', ";
+            query += $"{column.Key}, ";
+            values += "?, ";
         }
-        columns = columns.Substring(0, columns.Length - 2); // Remove the last comma
-        values = values.Substring(0, values.Length - 2); // Remove the last comma
-        columns += ")";
-        values += ")";
-        query += columns + " " + values;
+        query = query.Substring(0, query.Length - 2) + ") ";
+        values = values.Substring(0, values.Length - 2) + ")";
+        query += values;
 
         return query;
     }
@@ -164,17 +226,13 @@ internal class SQLiteWrapper
         string query = $"UPDATE {_tableName} SET ";
         foreach (var column in _newValues)
         {
-            query += $"{column.Key} = ";
-            query += column.Value is null ? "null, " : $"'{column.Value}', ";
+            query += $"{column.Key} = ?, ";
         }
         query = query.Substring(0, query.Length - 2); // Remove the last comma
-                                                      // Use all the keys to find the row to update
         query += " WHERE ";
         foreach (var column in _oldValues)
         {
-            query += $"{column.Key} = ";
-            query += column.Value is null ? "null" : $"'{column.Value}'";
-            query += " AND ";
+            query += $"{column.Key} = ? AND ";
         }
         query = query.Substring(0, query.Length - 5); // Remove the last AND
         return query;
@@ -185,9 +243,7 @@ internal class SQLiteWrapper
         string query = $"DELETE FROM {_tableName} WHERE ";
         foreach (var column in _values)
         {
-            query += $"{column.Key} = ";
-            query += column.Value is null ? "null" : $"'{column.Value}'";
-            query += " AND ";
+            query += $"{column.Key} = ? AND ";
         }
         query = query.Substring(0, query.Length - 5); // Remove the last AND
         return query;

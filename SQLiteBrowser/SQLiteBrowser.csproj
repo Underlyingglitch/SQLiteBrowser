@@ -21,12 +21,13 @@
 		<Authors>Underlyingglitch</Authors>
 		<Company>underlyingglitch</Company>
 		<PackageId>SQLiteBrowser</PackageId>
-		<Version>2.1.1</Version>
+		<Version>2.2.0</Version>
 		<Description>Browse and edit SQLite databases with a MAUI ContentPage.</Description>
 		<PackageTags>SQLite, MAUI, Database</PackageTags>
 		<RepositoryUrl>https://github.com/Underlyingglitch/SQLiteBrowser</RepositoryUrl>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReleaseNotes>Added new features and fixed bugs. See the full release notes in the RELEASE_NOTES.md file.</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<ItemGroup>
