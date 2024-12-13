@@ -1,5 +1,9 @@
 # Release Notes
 
+## Version 2.1.1
+
+- Fixed styling not being applied
+
 ## Version 2.1.0
 
 - Updated styling
