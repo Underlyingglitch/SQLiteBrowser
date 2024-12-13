@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build-and-publish:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -21,9 +21,6 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.x'
-
-      - name: Install MAUI Android Workload
-        run: dotnet workload install maui-android
 
       - name: Restore dependencies
         run: dotnet restore
