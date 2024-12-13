@@ -10,6 +10,17 @@ public partial class TableDetailPage : ContentPage
     private List<string> columnNames;
     private Grid collectionView;
 
+    private bool hasRows;
+    private bool HasRows
+    {
+        get => hasRows;
+        set
+        {
+            hasRows = value;
+            OnPropertyChanged(nameof(HasRows));
+        }
+    }
+
     public TableDetailPage(string _dbPath, string _tableName)
     {
         this.dbPath = _dbPath;
@@ -34,7 +45,8 @@ public partial class TableDetailPage : ContentPage
                 new Button
                 {
                     Text = "Add New Row",
-                    Command = new Command(OnAddNewRowClicked)
+                    Command = new Command(OnAddNewRowClicked),
+                    IsVisible = HasRows
                 }
             }
         };
@@ -52,6 +64,8 @@ public partial class TableDetailPage : ContentPage
         collectionView.RowDefinitions.Clear();
         collectionView.ColumnDefinitions.Clear();
         LoadTableData();
+
+        this.HasRows = this.rows.Count > 0;
 
         collectionView.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         foreach (var columnName in this.columnNames)

@@ -1,5 +1,10 @@
 # Release Notes
 
+## Version 2.2.1
+
+- Added GitHub Actions workflow
+- Add new row button is hidden when no data exists (because no columns can be loaded)
+
 ## Version 2.2.0
 
 - Added prepared statements for safer queries
