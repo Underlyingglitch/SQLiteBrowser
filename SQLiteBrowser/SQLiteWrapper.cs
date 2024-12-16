@@ -211,6 +211,41 @@ internal class SQLiteWrapper
         raw.sqlite3_close(db);
     }
 
+    public static void Drop(string _dbPath, string _tableName)
+    {
+
+        Batteries.Init();
+        int result = raw.sqlite3_open(_dbPath, out sqlite3 db);
+        if (result != raw.SQLITE_OK)
+        {
+            throw new Exception("Could not open database");
+        }
+
+        string sql = $"DROP TABLE {_tableName}";
+        sqlite3_stmt stmt;
+        result = raw.sqlite3_prepare_v2(db, sql, out stmt);
+        if (result != raw.SQLITE_OK)
+        {
+            throw new Exception($"Failed to prepare SQL statement: {raw.sqlite3_errmsg(db).utf8_to_string()}");
+        }
+
+        result = raw.sqlite3_step(stmt);
+        if (result != raw.SQLITE_DONE)
+        {
+            throw new Exception($"Failed to execute SQL statement: {raw.sqlite3_errmsg(db).utf8_to_string()}");
+        }
+
+        raw.sqlite3_finalize(stmt);
+
+        sql = $"DELETE FROM sqlite_sequence WHERE name='{_tableName}';";
+        result = raw.sqlite3_prepare_v2(db, sql, out stmt);
+
+        result = raw.sqlite3_step(stmt);
+
+        raw.sqlite3_finalize(stmt);
+        raw.sqlite3_close(db);
+    }
+
     private static void BindParameters(sqlite3_stmt stmt, Dictionary<string, object> parameters, int startIndex = 0)
     {
         int index = startIndex + 1;

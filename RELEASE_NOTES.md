@@ -4,6 +4,7 @@
 
 - Added error message to indicate no column names are found
 - Added TRUNCATE function to table view
+- Added DROP function to table view
 
 ## Version 2.2.3
 
