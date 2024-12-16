@@ -11,13 +11,16 @@ public partial class TableDetailPage : ContentPage
     private Grid collectionView;
 
     private bool hasRows;
-    private bool HasRows
+    public bool HasRows
     {
         get => hasRows;
         set
         {
-            hasRows = value;
-            OnPropertyChanged(nameof(HasRows));
+            if (hasRows != value)
+            {
+                hasRows = value;
+                OnPropertyChanged();
+            }
         }
     }
 
@@ -46,7 +49,8 @@ public partial class TableDetailPage : ContentPage
                 {
                     Text = "Add New Row",
                     Command = new Command(OnAddNewRowClicked),
-                    IsVisible = HasRows
+                    IsVisible = HasRows,
+                    BindingContext = this
                 }
             }
         };
@@ -64,8 +68,6 @@ public partial class TableDetailPage : ContentPage
         collectionView.RowDefinitions.Clear();
         collectionView.ColumnDefinitions.Clear();
         LoadTableData();
-
-        this.HasRows = this.rows.Count > 0;
 
         collectionView.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         foreach (var columnName in this.columnNames)
@@ -116,13 +118,6 @@ public partial class TableDetailPage : ContentPage
         }
     }
 
-    //private void RefreshData()
-    //{
-    //    collectionView.Children.Clear();
-    //    LoadTableData();
-    //    collectionView.Children.Clear();
-    //}
-
     private async void OnRowTapped(object? sender, TappedEventArgs e)
     {
         if (e.Parameter is Dictionary<string, object> row)
@@ -133,6 +128,11 @@ public partial class TableDetailPage : ContentPage
 
     private async void OnAddNewRowClicked(object obj)
     {
+        if (this.columnNames.Count < 1)
+        {
+            await DisplayAlert("Error", "No known columns. Make sure at least 1 row is present in the database", "OK");
+            return;
+        }
         var emptyRow = this.columnNames.ToDictionary(col => col, col => (object)null);
         await Navigation.PushAsync(new EditRowPage(this.dbPath, this.tableName, emptyRow, true));
     }
@@ -140,7 +140,7 @@ public partial class TableDetailPage : ContentPage
     private void LoadTableData()
     {
         this.rows = new ObservableCollection<Dictionary<string, object>>();
-        
+
         List<Dictionary<string, object>> result = SQLiteWrapper.SelectAll(this.dbPath, this.tableName);
 
         this.rows = new ObservableCollection<Dictionary<string, object>>(result);
@@ -148,11 +148,15 @@ public partial class TableDetailPage : ContentPage
         if (this.rows.Count > 0)
         {
             this.columnNames = this.rows[0].Keys.ToList();
+            this.HasRows = true;
         }
         else
         {
             this.columnNames = new List<string>();
+            this.HasRows = false;
         }
     }
 }
+
+
 

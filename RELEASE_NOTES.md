@@ -1,5 +1,9 @@
 # Release Notes
 
+## Version 2.3.0
+
+- Added error message to indicate no column names are found
+
 ## Version 2.2.3
 
 - Added check to only run when debugger is attached
