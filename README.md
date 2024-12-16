@@ -7,6 +7,8 @@ SQLiteBrowser is a NuGet package designed for .NET MAUI applications. It provide
 - **Security**: Shows an error message when no debugger is attached. No data is shown when running in production apps
 - **Table Explorer**: View all tables in your SQLite database.
 - **Data Management**: Add, edit, and delete rows directly within the app.
+- **Clean table (TRUNCATE)** TRUNCATE any table or all tables at once.
+- **Delete table (DROP)** DROP any table or all tables at once.
 - **Ease of Integration**: Quickly integrate with your .NET MAUI application.
 
 ## Installation
@@ -39,15 +41,19 @@ Replace `path/to/database.sqlite` with the actual path to your SQLite database f
 
 3. **View and Manage Your Data**
 
-- The DatabaseBrowserPage displays all tables in the SQLite database.
+The DatabaseBrowserPage displays all tables in the SQLite database. From there you can:
 
-- Clicking on a table shows the table’s columns and data.
+- **View** a table
+- **Truncate** all tables
+- **Drop** all tables
 
-- You can:
+Clicking on a table shows the table’s columns and data. You can:
 
-  - **Add** rows by using the provided interface.
-  - **Edit** rows by clicking on a specific row and modifying its values.
-  - **Delete** rows by selecting a row and choosing the delete option.
+- **Add** rows by using the provided interface.
+- **Edit** rows by clicking on a specific row and modifying its values.
+- **Delete** rows by selecting a row and choosing the delete option.
+- **Truncate** the table.
+- **Drop** the table
 
 ## Example
 
