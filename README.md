@@ -4,6 +4,7 @@ SQLiteBrowser is a NuGet package designed for .NET MAUI applications. It provide
 
 ## Features
 
+- **Security**: Shows an error message when no debugger is attached. No data is shown when running in production apps
 - **Table Explorer**: View all tables in your SQLite database.
 - **Data Management**: Add, edit, and delete rows directly within the app.
 - **Ease of Integration**: Quickly integrate with your .NET MAUI application.
