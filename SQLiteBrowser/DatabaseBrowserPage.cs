@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 
 namespace SQLiteBrowser;
 
@@ -25,6 +26,29 @@ public partial class DatabaseBrowserPage : ContentPage
         this.tablesView.ItemTapped += OnTableSelected;
 
         Title = "Tables";
+        
+        // If the app that includes this package is running in Release mode, show a warning message
+        if (!Debugger.IsAttached)
+        {
+            var warningLabel = new Label
+            {
+                Text = "Warning: This package is intended for development purposes only. Do not use in production.",
+                TextColor = Color.FromRgb(255,0,0),
+                FontSize = 16,
+                HorizontalOptions = LayoutOptions.Center,
+                VerticalOptions = LayoutOptions.Start,
+                Margin = new Thickness(0, 10, 0, 0)
+            };
+            this.Content = new StackLayout
+            {
+                Padding = new Thickness(10),
+                Children =
+                {
+                    warningLabel
+                }
+            };
+            return;
+        }
 
         Content = new StackLayout
         {

@@ -1,5 +1,9 @@
 # Release Notes
 
+## Version 2.2.3
+
+- Added check to only run when debugger is attached
+
 ## Version 2.2.1
 
 - Added GitHub Actions workflow
