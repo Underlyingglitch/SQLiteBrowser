@@ -13,8 +13,9 @@ public partial class DatabaseBrowserPage : ContentPage
     {
         this.tableNames = new ObservableCollection<string>();
         this.dbPath = _filePath;
-        
-        this.tablesView = new ListView {
+
+        this.tablesView = new ListView
+        {
             ItemsSource = this.tableNames,
             ItemTemplate = new DataTemplate(() =>
             {
@@ -26,14 +27,14 @@ public partial class DatabaseBrowserPage : ContentPage
         this.tablesView.ItemTapped += OnTableSelected;
 
         Title = "Tables";
-        
+
         // If the app that includes this package is running in Release mode, show a warning message
         if (!Debugger.IsAttached)
         {
             var warningLabel = new Label
             {
                 Text = "Warning: This package is intended for development purposes only. Do not use in production.",
-                TextColor = Color.FromRgb(255,0,0),
+                TextColor = Color.FromRgb(255, 0, 0),
                 FontSize = 16,
                 HorizontalOptions = LayoutOptions.Center,
                 VerticalOptions = LayoutOptions.Start,
@@ -56,6 +57,21 @@ public partial class DatabaseBrowserPage : ContentPage
             Children =
             {
                 this.tablesView,
+                new Button
+                {
+                    Text = "Clean all tables (TRUNCATE)",
+                    Command = new Command(OnCleanTablesBtnClicked),
+                    BackgroundColor = Color.FromRgb(255, 204, 0),
+                    TextColor = Color.FromRgb(0, 0, 0),
+                    Margin = new Thickness(0, 10, 0, 0)
+                },
+                new Button
+                {
+                    Text = "Delete all tables (DROP)",
+                    Command = new Command(OnDropTablesBtnClicked),
+                    BackgroundColor = Color.FromRgb(255, 0, 0),
+                    Margin = new Thickness(0, 10, 0, 0)
+                }
             }
         };
     }
@@ -83,6 +99,40 @@ public partial class DatabaseBrowserPage : ContentPage
         {
             var tablePage = new TableDetailPage(this.dbPath, tableName);
             await Navigation.PushAsync(tablePage);
+        }
+    }
+
+    private async void OnCleanTablesBtnClicked(object obj)
+    {
+        if (!await DisplayAlert("Confirm", "Are you sure you want to TRUNCATE?", "Yes", "No")) return;
+        foreach (var tableName in this.tableNames)
+        {
+            try
+            {
+                SQLiteWrapper.Truncate(this.dbPath, tableName);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", ex.Message, "OK");
+            }
+        }
+    }
+
+    private async void OnDropTablesBtnClicked(object obj)
+    {
+        if (!await DisplayAlert("Confirm", "Are you sure you want to DROP?", "Yes", "No")) return;
+        foreach (var tableName in this.tableNames)
+        {
+            try
+            {
+                SQLiteWrapper.Drop(this.dbPath, tableName);
+
+                await Navigation.PopAsync();
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", ex.Message, "OK");
+            }
         }
     }
 
