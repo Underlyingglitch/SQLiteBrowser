@@ -1,5 +1,12 @@
 # Release Notes
 
+## Version 2.3.0
+
+- Added error message to indicate no column names are found
+- Added TRUNCATE function to table view
+- Added DROP function to table view
+- Added TRUNCATE/DROP all tables function to index view
+
 ## Version 2.2.3
 
 - Added check to only run when debugger is attached

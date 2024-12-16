@@ -11,13 +11,16 @@ public partial class TableDetailPage : ContentPage
     private Grid collectionView;
 
     private bool hasRows;
-    private bool HasRows
+    public bool HasRows
     {
         get => hasRows;
         set
         {
-            hasRows = value;
-            OnPropertyChanged(nameof(HasRows));
+            if (hasRows != value)
+            {
+                hasRows = value;
+                OnPropertyChanged();
+            }
         }
     }
 
@@ -46,8 +49,28 @@ public partial class TableDetailPage : ContentPage
                 {
                     Text = "Add New Row",
                     Command = new Command(OnAddNewRowClicked),
-                    IsVisible = HasRows
+                    IsVisible = HasRows,
+                    BindingContext = this,
+                    Margin = new Thickness(0, 10, 0, 0)
+                },
+                new Button
+                {
+                    Text = "Clean table (TRUNCATE)",
+                    Command = new Command(OnCleanTableBtnClicked),
+                    BackgroundColor = Color.FromRgb(255, 204, 0),
+                    TextColor = Color.FromRgb(0, 0, 0),
+                    IsVisible = HasRows,
+                    Margin = new Thickness(0, 10, 0, 0)
+                },
+                new Button
+                {
+                    Text = "Delete table (DROP)",
+                    Command = new Command(OnDropTableBtnClicked),
+                    BackgroundColor = Color.FromRgb(255, 0, 0),
+                    IsVisible = HasRows,
+                    Margin = new Thickness(0, 10, 0, 0)
                 }
+
             }
         };
     }
@@ -64,8 +87,6 @@ public partial class TableDetailPage : ContentPage
         collectionView.RowDefinitions.Clear();
         collectionView.ColumnDefinitions.Clear();
         LoadTableData();
-
-        this.HasRows = this.rows.Count > 0;
 
         collectionView.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         foreach (var columnName in this.columnNames)
@@ -116,13 +137,6 @@ public partial class TableDetailPage : ContentPage
         }
     }
 
-    //private void RefreshData()
-    //{
-    //    collectionView.Children.Clear();
-    //    LoadTableData();
-    //    collectionView.Children.Clear();
-    //}
-
     private async void OnRowTapped(object? sender, TappedEventArgs e)
     {
         if (e.Parameter is Dictionary<string, object> row)
@@ -133,14 +147,49 @@ public partial class TableDetailPage : ContentPage
 
     private async void OnAddNewRowClicked(object obj)
     {
+        if (this.columnNames.Count < 1)
+        {
+            await DisplayAlert("Error", "No known columns. Make sure at least 1 row is present in the database", "OK");
+            return;
+        }
         var emptyRow = this.columnNames.ToDictionary(col => col, col => (object)null);
         await Navigation.PushAsync(new EditRowPage(this.dbPath, this.tableName, emptyRow, true));
+    }
+
+    private async void OnCleanTableBtnClicked(object obj)
+    {
+        if (!await DisplayAlert("Confirm", "Are you sure you want to TRUNCATE?", "Yes", "No")) return;
+        try
+        {
+            SQLiteWrapper.Truncate(this.dbPath, this.tableName);
+
+            await Navigation.PopAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
+    }
+
+    private async void OnDropTableBtnClicked(object obj)
+    {
+        if (!await DisplayAlert("Confirm", "Are you sure you want to DROP?", "Yes", "No")) return;
+        try
+        {
+            SQLiteWrapper.Drop(this.dbPath, this.tableName);
+
+            await Navigation.PopAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
     }
 
     private void LoadTableData()
     {
         this.rows = new ObservableCollection<Dictionary<string, object>>();
-        
+
         List<Dictionary<string, object>> result = SQLiteWrapper.SelectAll(this.dbPath, this.tableName);
 
         this.rows = new ObservableCollection<Dictionary<string, object>>(result);
@@ -148,11 +197,15 @@ public partial class TableDetailPage : ContentPage
         if (this.rows.Count > 0)
         {
             this.columnNames = this.rows[0].Keys.ToList();
+            this.HasRows = true;
         }
         else
         {
             this.columnNames = new List<string>();
+            this.HasRows = false;
         }
     }
 }
+
+
 
