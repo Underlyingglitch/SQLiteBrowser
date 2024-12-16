@@ -50,8 +50,19 @@ public partial class TableDetailPage : ContentPage
                     Text = "Add New Row",
                     Command = new Command(OnAddNewRowClicked),
                     IsVisible = HasRows,
-                    BindingContext = this
+                    BindingContext = this,
+                    Margin = new Thickness(0, 10, 0, 0)
+                },
+                new Button
+                {
+                    Text = "Clean table (TRUNCATE)",
+                    Command = new Command(OnCleanTableBtnClicked),
+                    BackgroundColor = Color.FromRgb(255, 204, 0),
+                    TextColor = Color.FromRgb(0, 0, 0),
+                    IsVisible = HasRows,
+                    Margin = new Thickness(0, 10, 0, 0)
                 }
+                
             }
         };
     }
@@ -135,6 +146,21 @@ public partial class TableDetailPage : ContentPage
         }
         var emptyRow = this.columnNames.ToDictionary(col => col, col => (object)null);
         await Navigation.PushAsync(new EditRowPage(this.dbPath, this.tableName, emptyRow, true));
+    }
+
+    private async void OnCleanTableBtnClicked(object obj)
+    {
+        if (!await DisplayAlert("Confirm", "Are you sure you want to TRUNCATE?", "Yes", "No")) return;
+        try
+        {
+            SQLiteWrapper.Truncate(this.dbPath, this.tableName);
+
+            await Navigation.PopAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
     }
 
     private void LoadTableData()
