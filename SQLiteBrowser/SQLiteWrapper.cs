@@ -60,23 +60,8 @@ internal class SQLiteWrapper
             for (int i = 0; i < raw.sqlite3_column_count(stmt); i++)
             {
                 string columnName = raw.sqlite3_column_name(stmt, i).utf8_to_string();
-                string columnType = raw.sqlite3_column_decltype(stmt, i).utf8_to_string();
-                object columnValue = null;
-                switch (columnType)
-                {
-                    case "INTEGER":
-                        columnValue = raw.sqlite3_column_int(stmt, i);
-                        break;
-                    case "TEXT":
-                        columnValue = raw.sqlite3_column_text(stmt, i).utf8_to_string();
-                        break;
-                    case "REAL":
-                        columnValue = raw.sqlite3_column_double(stmt, i);
-                        break;
-                    case "BLOB":
-                        columnValue = raw.sqlite3_column_blob(stmt, i).ToArray();
-                        break;
-                }
+                object columnValue = ParseValue(stmt, i);
+
                 row.Add(columnName, columnValue);
             }
             rows.Add(row);
@@ -317,5 +302,23 @@ internal class SQLiteWrapper
         }
         query = query.Substring(0, query.Length - 5); // Remove the last AND
         return query;
+    }
+
+    public static object ParseValue(sqlite3_stmt _stmt, int _i)
+    {
+        string columnType = raw.sqlite3_column_decltype(_stmt, _i).utf8_to_string();
+        if (columnType.Contains("int"))
+        {
+            return raw.sqlite3_column_int(_stmt, _i);
+        }
+        else if (columnType.Contains("char") || columnType.Contains("text"))
+        {
+            return raw.sqlite3_column_text(_stmt, _i).utf8_to_string();
+        }
+        else if (columnType.Contains("real") || columnType.Contains("float") || columnType.Contains("double"))
+        {
+            return raw.sqlite3_column_double(_stmt, _i);
+        }
+        return $"{columnType} unknown";
     }
 }

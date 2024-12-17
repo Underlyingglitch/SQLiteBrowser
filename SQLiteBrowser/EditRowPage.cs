@@ -22,7 +22,7 @@ public partial class EditRowPage : ContentPage
             var label = new Label { Text = column.Key, FontAttributes = FontAttributes.Bold };
             collectionView.Children.Add(label);
             var entry = new Entry { Placeholder = column.Key };
-            if (!_isNew) entry.Text = column.Value.ToString();
+            if (!_isNew) entry.Text = column.Value?.ToString();
             collectionView.Children.Add(entry);
         }
         collectionView.Children.Add(new Button { Text = "Save", Command = new Command(OnSaveClicked), Margin = new Thickness(0, 10, 0, 0) });
