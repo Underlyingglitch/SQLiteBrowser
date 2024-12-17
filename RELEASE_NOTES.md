@@ -1,5 +1,10 @@
 # Release Notes
 
+## Version 2.3.1
+
+- Fixed issue where table view would crash if values were null
+- Introduced better way to parse values based on column type
+
 ## Version 2.3.0
 
 - Added error message to indicate no column names are found

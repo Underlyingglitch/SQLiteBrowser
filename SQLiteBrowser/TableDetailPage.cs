@@ -115,8 +115,12 @@ public partial class TableDetailPage : ContentPage
                 }
 
                 string columnName = this.columnNames[j];
-                string value = this.rows[i][columnName].ToString();
-                var label = new Label { Text = value, Padding = new Thickness(5) };
+                var value = this.rows[i][columnName];
+                string valueStr;
+                if (value == null) valueStr = "NULL";
+                else if (value is byte[] bytes) valueStr = BitConverter.ToString(bytes).Replace("-", "");
+                else valueStr = value.ToString();
+                var label = new Label { Text = valueStr, Padding = new Thickness(5) };
                 var frame = new Frame
                 {
                     Content = label,
