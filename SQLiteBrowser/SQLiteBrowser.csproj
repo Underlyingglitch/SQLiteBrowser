@@ -20,7 +20,7 @@
 		<Authors>Underlyingglitch</Authors>
 		<Company>underlyingglitch</Company>
 		<PackageId>SQLiteBrowser</PackageId>
-		<Version>2.3.3</Version>
+		<Version>2.3.4</Version>
 		<Description>Browse and edit SQLite databases with a MAUI ContentPage.</Description>
 		<PackageTags>SQLite, MAUI, Database</PackageTags>
 		<RepositoryUrl>https://github.com/Underlyingglitch/SQLiteBrowser</RepositoryUrl>
