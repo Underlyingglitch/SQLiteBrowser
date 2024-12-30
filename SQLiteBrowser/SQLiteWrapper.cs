@@ -306,19 +306,49 @@ internal class SQLiteWrapper
 
     public static object ParseValue(sqlite3_stmt _stmt, int _i)
     {
-        string columnType = raw.sqlite3_column_decltype(_stmt, _i).utf8_to_string();
-        if (columnType.Contains("int") || columnType.Contains("INT"))
+        string columnType = raw.sqlite3_column_decltype(_stmt, _i).utf8_to_string().ToLower();
+        switch (columnType)
         {
-            return raw.sqlite3_column_int(_stmt, _i);
+            case "int":
+            case "integer":
+            case "tinyint":
+            case "smallint":
+            case "mediumint":
+            case "bigint":
+            case "unsigned big int":
+            case "int2":
+            case "int8":
+                return raw.sqlite3_column_int(_stmt, _i);
+
+            case "real":
+            case "double":
+            case "float":
+                return raw.sqlite3_column_double(_stmt, _i);
+
+            case "text":
+            case "clob":
+            case "varchar":
+            case "varying character":
+            case "nchar":
+            case "native character":
+            case "nvarchar":
+            case "char":
+                return raw.sqlite3_column_text(_stmt, _i).utf8_to_string();
+
+            case "blob":
+                return raw.sqlite3_column_blob(_stmt, _i).ToArray();
+
+            case "numeric":
+            case "decimal":
+            case "boolean":
+                return raw.sqlite3_column_double(_stmt, _i);
+
+            case "date":
+            case "datetime":
+                return raw.sqlite3_column_text(_stmt, _i).utf8_to_string();
+
+            default:
+                return $"{columnType} unknown";
         }
-        else if (columnType.Contains("char") || columnType.Contains("text"))
-        {
-            return raw.sqlite3_column_text(_stmt, _i).utf8_to_string();
-        }
-        else if (columnType.Contains("real") || columnType.Contains("float") || columnType.Contains("double"))
-        {
-            return raw.sqlite3_column_double(_stmt, _i);
-        }
-        return $"{columnType} unknown";
     }
 }
