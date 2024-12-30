@@ -1,5 +1,9 @@
 # Release Notes
 
+## Version 2.3.3
+
+- Added more data types to the ParseValue method
+
 ## Version 2.3.2
 
 - Fixed issue where columns with type INTEGER would return unknown instead of the actual value
