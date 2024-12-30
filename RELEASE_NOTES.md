@@ -1,5 +1,9 @@
 # Release Notes
 
+## Version 2.3.2
+
+- Fixed issue where columns with type INTEGER would return unknown instead of the actual value
+
 ## Version 2.3.1
 
 - Fixed issue where table view would crash if values were null

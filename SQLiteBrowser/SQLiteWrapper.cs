@@ -307,7 +307,7 @@ internal class SQLiteWrapper
     public static object ParseValue(sqlite3_stmt _stmt, int _i)
     {
         string columnType = raw.sqlite3_column_decltype(_stmt, _i).utf8_to_string();
-        if (columnType.Contains("int"))
+        if (columnType.Contains("int") || columnType.Contains("INT"))
         {
             return raw.sqlite3_column_int(_stmt, _i);
         }
