@@ -1,5 +1,10 @@
 # Release Notes
 
+## Version 2.3.4
+
+- Fixed issue where inserting new rows results in "Could not open database" problem
+- Fixed bug where edit page would crash with values exceeding 5000 characters
+
 ## Version 2.3.3
 
 - Added more data types to the ParseValue method
